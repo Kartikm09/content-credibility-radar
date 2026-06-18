@@ -1,0 +1,31 @@
+{
+  "title": "Why food prices changed this year",
+  "transcript": "This video explains food price changes using official inflation data and research. Some clips online call it a shocking scam, but the core claim should be checked against sources.",
+  "claims": [
+    {
+      "id": "c1",
+      "text": "Food prices increased in several major categories this year."
+    },
+    {
+      "id": "c2",
+      "text": "Shipping costs and weather shocks affected some supply chains."
+    },
+    {
+      "id": "c3",
+      "text": "One hidden group controls all grocery prices."
+    }
+  ],
+  "sources": [
+    {
+      "title": "Official inflation table",
+      "type": "official",
+      "supports": ["c1"]
+    },
+    {
+      "title": "Agricultural economics research note",
+      "type": "research",
+      "supports": ["c2"]
+    }
+  ]
+}
+

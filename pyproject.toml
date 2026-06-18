@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "content-credibility-radar"
+version = "0.1.0"
+description = "Evaluate content claims, source quality, and credibility risks for videos, podcasts, and articles."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Kartik Mishra" }]
+license = { text = "MIT" }
+keywords = ["content-credibility", "fact-checking", "youtube", "claim-evaluation", "ai-evaluation", "python"]
+
+[project.scripts]
+credibility-radar = "credibility_radar.cli:main"
+
