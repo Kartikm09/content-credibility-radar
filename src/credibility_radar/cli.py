@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 
+from .llm import LLMConfigurationError, LLMRequestError, generate_text
 from .radar import analyze_content, load_json
 
 
@@ -14,11 +15,17 @@ def main() -> None:
     analyze = sub.add_parser("analyze")
     analyze.add_argument("content_json")
     analyze.add_argument("--format", choices=["text", "json"], default="text")
+    analyze.add_argument("--llm", action="store_true", help="Add optional Kimi/ZenMux editorial review.")
     args = parser.parse_args()
 
-    report = analyze_content(load_json(args.content_json))
+    payload = load_json(args.content_json)
+    report = analyze_content(payload)
+    llm_analysis = _optional_llm_analysis(args.llm, payload, report)
     if args.format == "json":
-        print(json.dumps(report.to_dict(), indent=2))
+        output = report.to_dict()
+        if llm_analysis:
+            output["llm_analysis"] = llm_analysis
+        print(json.dumps(output, indent=2))
         return
 
     print("Content Credibility Radar")
@@ -36,8 +43,35 @@ def main() -> None:
     print("\nRecommendations")
     for recommendation in report.recommendations:
         print(f"- {recommendation}")
+    if llm_analysis:
+        print("\nKimi Editorial Review")
+        print(llm_analysis)
+
+
+def _optional_llm_analysis(enabled: bool, payload: dict[str, object], report: object) -> str | None:
+    if not enabled:
+        return None
+    payload_for_prompt = dict(payload)
+    transcript = str(payload_for_prompt.get("transcript", ""))
+    payload_for_prompt["transcript"] = transcript[:1500]
+    prompt = (
+        "Review this credibility report as a human-in-the-loop editorial QA assistant. "
+        "Do not claim something is true without sources; focus on verification workflow.\n\n"
+        f"CONTENT PAYLOAD:\n{json.dumps(payload_for_prompt, indent=2)}\n\n"
+        f"DETERMINISTIC REPORT:\n{json.dumps(report.to_dict(), indent=2)}\n\n"
+        "Return: 1) risk summary, 2) source gaps, 3) neutral rewrite guidance, "
+        "4) search queries for manual verification, 5) publish/no-publish recommendation. "
+        "Keep the full answer under 350 words with compact bullets."
+    )
+    try:
+        return generate_text(
+            prompt,
+            system="You are a fact-checking workflow analyst, not a truth oracle.",
+            max_tokens=6000,
+        )
+    except (LLMConfigurationError, LLMRequestError) as exc:
+        raise SystemExit(str(exc)) from exc
 
 
 if __name__ == "__main__":
     main()
-

@@ -22,6 +22,16 @@ JSON output:
 PYTHONPATH=src python3 -m credibility_radar.cli analyze examples/video_claims.json --format json
 ```
 
+Optional live Kimi/ZenMux editorial review:
+
+```bash
+export ZENMUX_API_KEY="your_api_key_here"
+export ZENMUX_MODEL="moonshotai/kimi-k2.7-code-free"
+PYTHONPATH=src python3 -m credibility_radar.cli analyze examples/video_claims.json --llm
+```
+
+The API key is read from the environment and should never be committed. Without `--llm`, the repo runs fully offline.
+
 Run tests:
 
 ```bash
@@ -36,6 +46,7 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 - source diversity score
 - emotional-language flags
 - recommended next fact-checking actions
+- optional Kimi/ZenMux editorial review when `--llm` is enabled
 
 ## Portfolio Signal
 
@@ -47,4 +58,3 @@ This repo supports:
 - YouTube transcript analysis
 - claim extraction pipelines
 - human-in-the-loop fact checking
-
